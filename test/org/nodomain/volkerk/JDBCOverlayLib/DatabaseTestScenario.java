@@ -54,5 +54,7 @@ public class DatabaseTestScenario extends TstBaseClass {
         s.execute("INSERT INTO t1 VALUES (NULL, NULL, 666.66, 'Hi', NOW())");
         s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Ho', NOW())");
         s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Ho', NOW())");
+        
+        s.execute("CREATE OR REPLACE VIEW v1 AS SELECT * FROM t1 WHERE i=84");
     }
 }

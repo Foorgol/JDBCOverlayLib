@@ -16,6 +16,13 @@ import static org.junit.Assert.*;
  */
 public class JDBC_GenericDBTest extends DatabaseTestScenario {
     
+    protected SampleDB getScenario01() throws SQLException
+    {
+        prepMysqlScenario01();
+        
+        return new SampleDB(JDBC_GenericDB.DB_ENGINE.MYSQL, "localhost", 3306, "unittest", "unittest", "unittest");
+    }
+    
 
     @Test
     public void testConstructor() throws SQLException {
@@ -39,10 +46,15 @@ public class JDBC_GenericDBTest extends DatabaseTestScenario {
         }
         catch (Exception e) {}
         
-        // make sure tables have been created
+        // make sure tables and views have been created
         Connection c = getMysqlConn(true);
         ResultSet rs = c.createStatement().executeQuery("SHOW TABLES");
         assertTrue(rs.first());
         assertTrue(rs.getString(1).equals("t1"));
+        assertTrue(rs.next());
+        assertTrue(rs.getString(1).equals("v1"));
+        assertFalse(rs.next());
     }
+    
+    
 }

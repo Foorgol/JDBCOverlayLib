@@ -375,7 +375,10 @@ abstract public class JDBC_GenericDB {
      */    
     public void viewCreationHelper(String viewName, String selectStmt) throws SQLException
     {
-        String sql = "CREATE VIEW IF NOT EXISTS " + viewName + " AS ";
+        String sql = "CREATE VIEW IF NOT EXISTS";
+        if (dbType == DB_ENGINE.MYSQL) sql = "CREATE OR REPLACE VIEW";
+        
+        sql += " " + viewName + " AS ";
         sql += selectStmt;
         execNonQuery(sql);
     }
