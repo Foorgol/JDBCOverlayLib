@@ -20,6 +20,7 @@ public class SampleDB extends JDBC_GenericDB {
     protected void populateTables() throws SQLException {
         // create a dummy table
         tableCreationHelper("t1", "i INTEGER", "f DOUBLE", "s VARCHAR(40)", "d DATETIME");
+        tableCreationHelper("t2", "i INTEGER", "f DOUBLE", "s VARCHAR(40)", "d DATETIME");
     }
 
     @Override

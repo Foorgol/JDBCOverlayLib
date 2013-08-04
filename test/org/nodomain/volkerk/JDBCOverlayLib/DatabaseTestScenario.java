@@ -50,6 +50,9 @@ public class DatabaseTestScenario extends TstBaseClass {
         s.execute("CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
                 " i INT, f DOUBLE, s VARCHAR(40), d DATETIME)");
         
+        s.execute("CREATE TABLE IF NOT EXISTS t2 (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                " i INT, f DOUBLE, s VARCHAR(40), d DATETIME)");
+        
         s.execute("INSERT INTO t1 VALUES (NULL, 42, 23.23, 'Hallo', NOW())");
         s.execute("INSERT INTO t1 VALUES (NULL, NULL, 666.66, 'Hi', NOW())");
         s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Ho', NOW())");

@@ -4,18 +4,21 @@
  */
 package org.nodomain.volkerk.JDBCOverlayLib;
 
+import com.sun.rowset.CachedRowSetImpl;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.sql.rowset.CachedRowSet;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import org.nodomain.volkerk.JDBCOverlayLib.helper.*;
@@ -184,6 +187,12 @@ abstract public class JDBC_GenericDB {
      */
     public void execNonQuery(String baseSqlStmt, Object ... params) throws SQLException
     {
+        if ((params == null) || (params.length == 0))
+        {
+            conn.createStatement().executeUpdate(baseSqlStmt);
+            return;
+        }
+        
         try (PreparedStatement st = prepStatement(baseSqlStmt, params))
         {
             st.executeUpdate();
@@ -209,15 +218,35 @@ abstract public class JDBC_GenericDB {
      * 
      * @throws SQLException
      * 
-     * @return the ResultSet object for the retrieved data
+     * @return the CachedRowSet object for the retrieved data
      */
-    public ResultSet execContentQuery(String baseSqlStmt, Object ... params) throws SQLException
+    public CachedRowSet execContentQuery(String baseSqlStmt, Object ... params) throws SQLException
     {
         ResultSet rs = null;
+        CachedRowSet result;
+        
+        if ((params == null) || (params.length == 0))
+        {
+            try {
+                result = new CachedRowSetImpl();
+                Statement st = conn.createStatement();
+                rs = st.executeQuery(baseSqlStmt);
+                result.populate(rs);
+                return result;
+            }
+            catch (SQLException e) {
+                log(Level.SEVERE, "ExecContentQuery with no parameters failed: ", "\n",
+                        "QUERY: ", baseSqlStmt, "\n",
+                        "ERROR: ", e.getMessage());
+                throw e;
+            }
+        }
         
         try (PreparedStatement st = prepStatement(baseSqlStmt, params))
         {
+            result = new CachedRowSetImpl();
             rs = st.executeQuery();
+            result.populate(rs);
         }
         catch (SQLException e)
         {
@@ -229,7 +258,7 @@ abstract public class JDBC_GenericDB {
         
         queryCounter++;
         
-        return rs;
+        return result;
     }
     
 //----------------------------------------------------------------------------
@@ -247,6 +276,19 @@ abstract public class JDBC_GenericDB {
     public Object execScalarQuery(String baseSqlStmt, Object ... params) throws SQLException
     {
         ResultSet rs = null;
+        
+        if ((params == null) || (params.length == 0))
+        {
+            rs = conn.createStatement().executeQuery(baseSqlStmt);
+            
+            if (!(rs.first()))
+            {
+                log("Scalar query returned no data!");
+                return null;
+            }
+            
+            return rs.getObject(1);
+        }
         
         try (PreparedStatement st = prepStatement(baseSqlStmt, params))
         {
@@ -382,15 +424,113 @@ abstract public class JDBC_GenericDB {
         sql += selectStmt;
         execNonQuery(sql);
     }
+
+//----------------------------------------------------------------------------
+    
+    /**
+     * Return a list of all views or all tables in the database
+     * 
+     * @param getViews must be set to true to return view names; table names otherwise
+     * @return an ArrayList of strings with names
+     */
+    public List<String> allTableNames(boolean getViews)
+    {
+        String sql = "";
+        
+        if (dbType == DB_ENGINE.SQLITE)
+        {
+            String tableType = getViews ? "view" : "table";
+
+            sql = "SELECT * FROM sqlite_master WHERE type='";
+            sql += tableType + "'";
+        }
+        else if (dbType == DB_ENGINE.MYSQL)
+        {
+            String tableType = getViews ? "VIEW" : "BASE TABLE";
+            sql = "SHOW FULL TABLES WHERE TABLE_TYPE LIKE '" + tableType + "'";
+        }
+        
+        ArrayList<String> result = new ArrayList<>();
+        
+        // SHOW TABLES etc. doesn't work with cached results, so
+        // we have to do the query manually here
+        try
+        {
+            ResultSet rs = conn.createStatement().executeQuery(sql);
+            
+            // in SQLITE, the second column contains the table name and
+            // in MYSQL, the first column contains the table name and
+            int resultCol;
+            if (dbType == DB_ENGINE.SQLITE) resultCol = 2;
+            else resultCol = 1;
+        
+            while (rs.next())
+            {
+                String n = rs.getString(resultCol);
+
+                // for sqlite, the list contains one internal table, which we skip
+                if ((dbType == DB_ENGINE.SQLITE) && (n.startsWith("sqlite_"))) continue;
+
+                result.add(n);
+            }
+        }
+        catch (Exception e)
+        {
+            genericExceptionHandler(e, "Get all table names failed, SQL = ", sql);
+        }
+        
+        return result;
+    }
+    
+//----------------------------------------------------------------------------
+    
+    /**
+     * Returns a list of all tables in the database
+     * 
+     * @return the table names as ArrayList
+     */
+    public List<String> allTableNames()
+    {
+        return allTableNames(false);
+    }
 	
-    
-
 //----------------------------------------------------------------------------
     
-
+    /**
+     * Returns a list of all views in the database
+     * 
+     * @return the view names as ArrayList
+     */
+    public List<String> allViewNames()
+    {
+        return allTableNames(true);
+    }
+	
 //----------------------------------------------------------------------------
     
-
+    /**
+     * Generic exception handler which simply terminates the program
+     * 
+     * @param e the exception that occured
+     * @param objs additional info (e. g. strings) which will be added to the output
+     */
+    protected void genericExceptionHandler(Exception e, Object ... objs)
+    {
+        log(Level.SEVERE, objs);
+        log(Level.SEVERE, "Terminating with fatal exception:\n",
+                e.getMessage(), objs);
+        
+        try
+        {
+            // try to close the database to avoid data corruption
+            conn.close();
+        }
+        catch (SQLException ex) {}
+        
+        // Unconditional exit
+        System.exit(42);
+    }
+	
 //----------------------------------------------------------------------------
     
 

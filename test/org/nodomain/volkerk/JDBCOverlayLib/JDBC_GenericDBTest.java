@@ -7,6 +7,7 @@ package org.nodomain.volkerk.JDBCOverlayLib;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -25,7 +26,7 @@ public class JDBC_GenericDBTest extends DatabaseTestScenario {
     
 
     @Test
-    public void testConstructor() throws SQLException {
+    public void testConstructorMysql() throws SQLException {
         cleanupMysql();
         
         // open existing database using explicit parameters
@@ -52,9 +53,69 @@ public class JDBC_GenericDBTest extends DatabaseTestScenario {
         assertTrue(rs.first());
         assertTrue(rs.getString(1).equals("t1"));
         assertTrue(rs.next());
+        assertTrue(rs.getString(1).equals("t2"));
+        assertTrue(rs.next());
         assertTrue(rs.getString(1).equals("v1"));
         assertFalse(rs.next());
     }
     
+    @Test
+    public void testGetTableNames() throws SQLException
+    {
+        SampleDB db = getScenario01();
+        
+        ArrayList<String> tabs = new ArrayList<>();
+        tabs.add("t1");
+        tabs.add("t2");
+       
+        for (String tabName : db.allTableNames())
+        {
+            if (tabs.contains(tabName))
+            {
+                // we found an expected table.
+                // remove it from the list
+                tabs.remove(tabName);
+            }
+            else
+            {
+                // we found a table that shouldn't be there
+                fail("Unexpected table in database: " + tabName);
+            }
+        }
+        
+        assertTrue(tabs.isEmpty());
+        
+        db.close();
+
+    }
+    
+    @Test
+    public void testGetViewNames() throws SQLException
+    {
+        SampleDB db = getScenario01();
+        
+        ArrayList<String> tabs = new ArrayList<>();
+        tabs.add("v1");
+       
+        for (String tabName : db.allViewNames())
+        {
+            if (tabs.contains(tabName))
+            {
+                // we found an expected table.
+                // remove it from the list
+                tabs.remove(tabName);
+            }
+            else
+            {
+                // we found a table that shouldn't be there
+                fail("Unexpected view in database: " + tabName);
+            }
+        }
+        
+        assertTrue(tabs.isEmpty());
+        
+        db.close();
+
+    }
     
 }
