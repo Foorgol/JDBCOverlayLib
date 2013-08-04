@@ -533,9 +533,68 @@ abstract public class JDBC_GenericDB {
 	
 //----------------------------------------------------------------------------
     
-
+    /**
+     * Get the current query counter
+     * @return the current query counter
+     */
+    public long getQueryCounter()
+    {
+        return queryCounter;
+    }
+	
 //----------------------------------------------------------------------------
     
+    /**
+     * Reset the query counter to zero
+     */
+    public void resetQueryCounter()
+    {
+        queryCounter = 0;
+    }
+	
+//----------------------------------------------------------------------------
+    
+    /**
+     * Checks whether the DB contains a specific view or table
+     * 
+     * @param name is the name of the view / table to look for
+     * @param isView must be set to true if "name" refers to a view
+     * @return true if the database contains the table / view named "name"
+     */
+    public boolean hasTableOrView(String name, boolean isView)
+    {
+        for (String n : allTableNames(isView))
+        {
+            if (n.equals(name)) return true;
+        }
+        return false;
+    }
+	    
+//----------------------------------------------------------------------------
+    
+    /**
+     * Checks whether the DB contains a specific table
+     * 
+     * @param tabName is the name of the table to look for
+     * @return true if the database contains the table named "name"
+     */
+    public boolean hasTable(String tabName)
+    {
+        return hasTableOrView(tabName, false);
+    }
+	
+//----------------------------------------------------------------------------
+    
+    /**
+     * Checks whether the DB contains a specific view
+     * 
+     * @param viewName is the name of the view to look for
+     * @return true if the database contains the view named "name"
+     */
+    public boolean hasView(String viewName)
+    {
+        return hasTableOrView(viewName, true);
+    }    
 
 //----------------------------------------------------------------------------
     
