@@ -56,8 +56,17 @@ public class DatabaseTestScenario extends TstBaseClass {
         s.execute("INSERT INTO t1 VALUES (NULL, 42, 23.23, 'Hallo', NOW())");
         s.execute("INSERT INTO t1 VALUES (NULL, NULL, 666.66, 'Hi', NOW())");
         s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Ho', NOW())");
-        s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Ho', NOW())");
+        s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Hoi', NOW())");
+        s.execute("INSERT INTO t1 VALUES (NULL, 84, 42.42, 'Ho', NOW())");
         
-        s.execute("CREATE OR REPLACE VIEW v1 AS SELECT * FROM t1 WHERE i=84");
+        s.execute("CREATE OR REPLACE VIEW v1 AS SELECT i, f, s FROM t1 WHERE i=84");
     }
+    
+    protected SampleDB getScenario01() throws SQLException
+    {
+        prepMysqlScenario01();
+        
+        return new SampleDB(JDBC_GenericDB.DB_ENGINE.MYSQL, "localhost", 3306, "unittest", "unittest", "unittest");
+    }
+	
 }

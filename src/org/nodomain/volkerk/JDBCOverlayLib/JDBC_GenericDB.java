@@ -324,16 +324,13 @@ abstract public class JDBC_GenericDB {
      * 
      * @return the retrieved Integer or null
      */
-    public Object execScalarQueryInt(String baseSqlStmt, Object ... params) throws SQLException
+    public Integer execScalarQueryInt(String baseSqlStmt, Object ... params) throws SQLException
     {
         Object o = execScalarQuery(baseSqlStmt, params);
         
-        if (o != null)
-        {
-            return Integer.parseInt(o.toString());
-        }
+        if (o == null) return null;
         
-        return null;
+        return Integer.parseInt(o.toString());
     }
     
 //----------------------------------------------------------------------------
@@ -528,7 +525,7 @@ abstract public class JDBC_GenericDB {
         catch (SQLException ex) {}
         
         // Unconditional exit
-        System.exit(42);
+        //System.exit(42);
     }
 	
 //----------------------------------------------------------------------------
@@ -598,17 +595,69 @@ abstract public class JDBC_GenericDB {
 
 //----------------------------------------------------------------------------
     
+    /**
+     * Helper function to create a FOREIGN-KEY-statement for CREATE TABLE purposes
+     * 
+     * @param keyName the of the column which will reference to the other table
+     * @param referedTable the name of the table to which id-column we will refer to
+     * @return the string with the FOREIGN KEY statement
+     */
+    public static String genForeignKeyClause(String keyName, String referedTable)
+    {
+        //string sql = "FOREIGN KEY (";
+        //sql += keyName;
+        //sql += ") REFERENCES ";
+        //sql += referedTable;
+        //sql += "(id)";
+        //return sql;
+        return keyName + " INTEGER REFERENCES " + referedTable;
+    }
+	
+//----------------------------------------------------------------------------
+    
+    public DB_ENGINE getEngineType()
+    {
+        return dbType;
+    }
+
+//----------------------------------------------------------------------------
+   
+    public int getLastInsertRowId() throws SQLException
+    {
+        String sql = "SELECT ";
+        
+        if (dbType == DB_ENGINE.SQLITE) sql += "last_insert_rowid()";
+        else sql += "LAST_INSERT_ID()";
+        
+        return execScalarQueryInt(sql);
+    }
 
 //----------------------------------------------------------------------------
     
+    /**
+     * Returns the instance of a database table
+     * 
+     * @param tabName the name of the table to access
+     * @return the SqliteTable instance of that table
+     */
+    public JDBC_Tab t(String tabName)
+    {
+        return new JDBC_Tab(this, tabName);
+    }    
 
 //----------------------------------------------------------------------------
-    
 
-//----------------------------------------------------------------------------
-    
+    /**
+     * Returns the instance of a database view
+     * 
+     * @param viewName the name of the view to access
+     * @return the SqliteView instance of that view
+     */
+    public JDBC_View v(String viewName)
+    {
+        return new JDBC_View(this, viewName);
+    }
 
-//----------------------------------------------------------------------------
     
 
 //----------------------------------------------------------------------------

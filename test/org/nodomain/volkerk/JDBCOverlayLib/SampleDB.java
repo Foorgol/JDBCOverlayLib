@@ -26,7 +26,7 @@ public class SampleDB extends JDBC_GenericDB {
     @Override
     protected void populateViews() throws SQLException
     {
-        viewCreationHelper("v1", "SELECT * FROM t1 WHERE i=84");
+        viewCreationHelper("v1", "SELECT i,f,s FROM t1 WHERE i=84");
     }
     
 }
