@@ -4,6 +4,7 @@
  */
 package org.nodomain.volkerk.JDBCOverlayLib;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -161,6 +162,22 @@ public class TabRowTest extends DatabaseTestScenario {
 
 //----------------------------------------------------------------------------
 
+    @Test
+    public void testTabRowIsNotCaching() throws SQLException
+    {
+        SampleDB db = getScenario01();
+        TabRow r = new TabRow(db, "t1", 1);
+        
+        assertTrue(r.asInt("i") == 42);
+        
+        // manipulate that row over a separate connection
+        Connection c = getMysqlConn(true);
+        c.createStatement().executeUpdate("UPDATE t1 SET i=777 WHERE id=1");
+        c.close();
+        
+        // make sure the row reflects that change
+        assertTrue(r.asInt("i") == 777);
+    }
 
 //----------------------------------------------------------------------------
 
