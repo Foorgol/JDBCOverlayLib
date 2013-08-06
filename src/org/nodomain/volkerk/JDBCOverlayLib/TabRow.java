@@ -4,10 +4,13 @@
  */
 package org.nodomain.volkerk.JDBCOverlayLib;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import javax.sql.rowset.CachedRowSet;
 
 /**
  *
@@ -179,21 +182,114 @@ public class TabRow {
 
 //----------------------------------------------------------------------------
 
+    protected CachedRowSet getColumnRowSet(String colName) throws SQLException
+    {
+        String sql = "SELECT " + colName + " FROM " + tabName + " WHERE id=" + rowId;
+        
+        CachedRowSet rs = db.execContentQuery(sql);
+        if (!(rs.first()))
+        {
+            throw new IllegalStateException("Row with ID " + rowId + " in table " + tabName +
+                    " has been deleted or has no column " + colName + "!");
+        }
+        
+        return rs;
+    }
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Return the content of a column as an object
+     * 
+     * @param colName the name of column to look up
+     * 
+     * @return the object in the column or null if the column was empty (SQL NULL)
+     * 
+     * @throws SQLException 
+     */
+    public Object _c(String colName) throws SQLException
+    {
+        CachedRowSet rs = getColumnRowSet(colName);
+        Object o = rs.getObject(1);
+        if (rs.wasNull()) return null;
+        return o;
+    }
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Return the content of a column as a string
+     * 
+     * @param colName the name of column to look up
+     * 
+     * @return the string in the column or null if the column was empty (SQL NULL)
+     * 
+     * @throws SQLException 
+     */
+    public String c(String colName) throws SQLException
+    {
+        CachedRowSet rs = getColumnRowSet(colName);
+        String o = rs.getString(1);
+        if (rs.wasNull()) return null;
+        return o;
+    }
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Return the content of a column as an integer
+     * 
+     * @param colName the name of column to look up
+     * 
+     * @return the integer in the column or null if the column was empty (SQL NULL)
+     * 
+     * @throws SQLException 
+     */
+    public Integer asInt(String colName) throws SQLException
+    {
+        CachedRowSet rs = getColumnRowSet(colName);
+        Integer o = rs.getInt(1);
+        if (rs.wasNull()) return null;
+        return o;
+    }
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Return the content of a column as a double
+     * 
+     * @param colName the name of column to look up
+     * 
+     * @return the double in the column or null if the column was empty (SQL NULL)
+     * 
+     * @throws SQLException 
+     */
+    public Double asDouble(String colName) throws SQLException
+    {
+        CachedRowSet rs = getColumnRowSet(colName);
+        Double o = rs.getDouble(1);
+        if (rs.wasNull()) return null;
+        return o;
+    }
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Return the content of a column as a Date
+     * 
+     * @param colName the name of column to look up
+     * 
+     * @return the Date in the column or null if the column was empty (SQL NULL)
+     * 
+     * @throws SQLException 
+     */
+    public Date asDate(String colName) throws SQLException
+    {
+        CachedRowSet rs = getColumnRowSet(colName);
+        Date o = rs.getTimestamp(1);
+        if (rs.wasNull()) return null;
+        return o;
+    }
 
 //----------------------------------------------------------------------------
 
