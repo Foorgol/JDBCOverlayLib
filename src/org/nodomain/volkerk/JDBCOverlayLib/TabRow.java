@@ -293,9 +293,58 @@ public class TabRow {
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Updates the contents of a single column
+     * 
+     * @param colName the name of the column to update
+     * @param newVal the new value to set
+     */
+    public void updateColumn(String colName, Object newVal)
+    {
+        if ("id".equals(colName))
+        {
+            throw new IllegalArgumentException("The ID of a table row may not be altered!");
+        }
+        
+        db.t(tabName).updateRow(rowId, colName, newVal);
+    }
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Updates the contents of multiple columns in this row
+     * 
+     * @param colVal a hashmap which contains pair of column name and values to be set
+     */
+    public void updateColumns(HashMap<String, Object> colVal)
+    {
+        db.t(tabName).updateRow(rowId, colVal);
+    }
+
+//----------------------------------------------------------------------------
+
+    /**
+     * Updates the contents of multiple columns in this row
+     * 
+     * @param args a list of arguments which contains alternating column names and values to be set
+     */
+    public void updateColumns(Object ... args)
+    {
+        db.t(tabName).updateRow(rowId, args);
+    }
+
+//----------------------------------------------------------------------------
+
+    /**
+     * Checks whether a column is empty (SQL NULL)
+     * 
+     * @param colName name of the column to check
+     * @return true if the column is empty (NULL), false otherwise
+     */
+    public boolean isEmpty(String colName) throws SQLException
+    {
+        return (_c(colName) == null);
+    }
 
 //----------------------------------------------------------------------------
 
