@@ -98,6 +98,11 @@ public class JDBC_TabTest extends DatabaseTestScenario {
         assertNotNull(r);
         assertTrue(r.id() == 3);
         
+        // get row with null value
+        r = t.getSingleRowByWhereClause("f IS NULL");
+        assertNotNull(r);
+        assertTrue(r.id() == 3);
+        
         // get non-existing row
         r = t.getSingleRowByWhereClause("i = 3947853");
         assertNull(r);
@@ -105,6 +110,26 @@ public class JDBC_TabTest extends DatabaseTestScenario {
 
 //----------------------------------------------------------------------------
 
+    @Test
+    public void testGetSingleRowByColumnValue() throws SQLException
+    {
+        SampleDB db = getScenario01();
+        JDBC_Tab t = db.t("t1");
+        
+        // get existing row
+        TabRow r = t.getSingleRowByColumnValue("i", 84);
+        assertNotNull(r);
+        assertTrue(r.id() == 3);
+        
+        // get row with null value
+        r = t.getSingleRowByColumnValue("f", null);
+        assertNotNull(r);
+        assertTrue(r.id() == 3);
+        
+        // get non-existing row
+        r = t.getSingleRowByColumnValue("i", 3947853);
+        assertNull(r);
+    }
 
 //----------------------------------------------------------------------------
 

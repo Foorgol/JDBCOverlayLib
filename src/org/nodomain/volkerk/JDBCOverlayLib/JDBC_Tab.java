@@ -166,6 +166,23 @@ public class JDBC_Tab extends JDBC_CommonTabularClass {
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Returns the first row of a table that matches a WHERE clause
+     * 
+     * @param params column/value pairs to match
+     * @return the TabRow instance for that row or null
+     */
+    public TabRow getSingleRowByColumnValue(Object ... params)
+    {
+        try
+        {
+            return new TabRow(db, tabName, params);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
 
 //----------------------------------------------------------------------------
 
