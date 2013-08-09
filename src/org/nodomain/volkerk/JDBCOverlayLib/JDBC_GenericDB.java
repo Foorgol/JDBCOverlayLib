@@ -183,19 +183,22 @@ abstract public class JDBC_GenericDB {
      * @param baseSqlStmt the SQL statement with placeholders ("?")
      * @param params the objects to fill the placeholders
      * 
+     * @return the number of affected rows
+     * 
      * @throws SQLException 
      */
-    public void execNonQuery(String baseSqlStmt, Object ... params) throws SQLException
+    public int execNonQuery(String baseSqlStmt, Object ... params) throws SQLException
     {
+        queryCounter++;
+        
         if ((params == null) || (params.length == 0))
         {
-            conn.createStatement().executeUpdate(baseSqlStmt);
-            return;
+            return conn.createStatement().executeUpdate(baseSqlStmt);
         }
         
         try (PreparedStatement st = prepStatement(baseSqlStmt, params))
         {
-            st.executeUpdate();
+            return st.executeUpdate();
         }
         catch (SQLException e)
         {
@@ -204,8 +207,6 @@ abstract public class JDBC_GenericDB {
                     "ERROR: ", e.getMessage());
             throw e;
         }
-        
-        queryCounter++;
     }
     
 //----------------------------------------------------------------------------

@@ -133,9 +133,43 @@ public class JDBC_TabTest extends DatabaseTestScenario {
 
 //----------------------------------------------------------------------------
 
+    @Test
+    public void testDeleteRowsByColumnValue() throws SQLException
+    {
+        SampleDB db = getScenario01();
+        JDBC_Tab t = db.t("t1");
+        
+        assertTrue(t.getNumRows() == 5);
+        int n = t.deleteRowsByColumnValue("i", 84);
+        assertTrue(n == 3);
+        assertTrue(t.getNumRows() == 2);
+        
+        prepMysqlScenario01();
+        assertTrue(t.getNumRows() == 5);
+        n = t.deleteRowsByColumnValue("s", "Hoi", "f", null);
+        assertTrue(n == 1);
+        assertTrue(t.getNumRows() == 4);
+    }
 
 //----------------------------------------------------------------------------
 
+    @Test
+    public void testDeleteRowsByWhereClause() throws SQLException
+    {
+        SampleDB db = getScenario01();
+        JDBC_Tab t = db.t("t1");
+        
+        assertTrue(t.getNumRows() == 5);
+        int n = t.deleteRowsByWhereClause("i = ?", 84);
+        assertTrue(n == 3);
+        assertTrue(t.getNumRows() == 2);
+        
+        prepMysqlScenario01();
+        assertTrue(t.getNumRows() == 5);
+        n = t.deleteRowsByWhereClause("s = ? AND f IS NULL", "Hoi");
+        assertTrue(n == 1);
+        assertTrue(t.getNumRows() == 4);
+    }
 
 //----------------------------------------------------------------------------
 

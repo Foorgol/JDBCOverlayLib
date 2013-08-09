@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import javax.sql.rowset.CachedRowSet;
 
 /**
  *
@@ -186,7 +187,46 @@ public class JDBC_Tab extends JDBC_CommonTabularClass {
 
 //----------------------------------------------------------------------------
 
-
+    /**
+     * Deletes rows that match a certain where clause
+     * 
+     * @param whereClause is the where clause to be matched
+     * 
+     * @return the number of rows affected
+     */
+    public int deleteRowsByWhereClause(String whereClause, Object ... params) throws SQLException
+    {
+        String sql = "DELETE FROM " + tabName + " WHERE " + whereClause;
+        return db.execNonQuery(sql, params);
+    }
+    
+//----------------------------------------------------------------------------
+    
+    /**
+     * Deletes rows that match certain values in certain columns
+     * 
+     * Multiple column/value pairs are concatenated using AND
+     * 
+     * @param args a list of Strings / Objects for column / value pairs
+     * 
+     * @return the number of rows affected
+     */
+    public int deleteRowsByColumnValue(Object ... args) throws SQLException
+    {
+        ArrayList<Object> whereStuff = new ArrayList<>(Arrays.asList(helper.prepWhereClause(args)));
+        
+        String clause = whereStuff.get(0).toString();
+        whereStuff.remove(0);
+        
+        if ((whereStuff.size() == 1) && (whereStuff.get(0) == null))
+        {
+            return deleteRowsByWhereClause(clause);
+        }
+        
+        Object[] params = whereStuff.toArray();
+        return deleteRowsByWhereClause(clause, params);
+    }
+    
 //----------------------------------------------------------------------------
 
 
