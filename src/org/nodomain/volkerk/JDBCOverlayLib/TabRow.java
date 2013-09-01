@@ -384,6 +384,22 @@ public class TabRow {
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Return the content of a column as a boolean
+     * 
+     * @param colName the name of column to look up
+     * 
+     * @return the Bool in the column or null if the column was empty (SQL NULL)
+     * 
+     * @throws SQLException 
+     */
+    public Boolean asBool(String colName) throws SQLException
+    {
+        CachedRowSet rs = getColumnRowSet(colName);
+        Boolean o = rs.getBoolean(1);
+        if (rs.wasNull()) return null;
+        return o;
+    }
 
 //----------------------------------------------------------------------------
 

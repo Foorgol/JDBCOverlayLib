@@ -193,7 +193,15 @@ abstract public class JDBC_GenericDB {
         
         if ((params == null) || (params.length == 0))
         {
-            return conn.createStatement().executeUpdate(baseSqlStmt);
+            try {
+                return conn.createStatement().executeUpdate(baseSqlStmt);
+            }
+            catch (SQLException e) {
+                log(Level.SEVERE, "ExecNonQuery failed: ", "\n",
+                        "QUERY: ", baseSqlStmt, "\n",
+                        "ERROR: ", e.getMessage());
+                throw e;
+            }
         }
         
         try (PreparedStatement st = prepStatement(baseSqlStmt, params))
@@ -342,7 +350,14 @@ abstract public class JDBC_GenericDB {
         
         for (int i = 0; i < params.length; i++)
         {
-            result.setObject(i+1, params[i]);
+            if ((params[i] != null) && ((params[i].getClass().isEnum())))
+            {
+                result.setObject(i+1, params[i].toString());
+            }
+            else
+            {
+                result.setObject(i+1, params[i]);
+            }
         }
         
         return result;
@@ -659,16 +674,53 @@ abstract public class JDBC_GenericDB {
         return new JDBC_View(this, viewName);
     }
 
-    
+//----------------------------------------------------------------------------
+
+    /**
+     * Shortcut to return a table-row-column cell content as String
+     * 
+     * @param tabName the name of the table to look-up
+     * @param rowId the ID of the row to look up
+     * @param colName the name of column which contains the value
+     * @return the cell content as String
+     */
+    public String trc(String tabName, int rowId, String colName) throws SQLException
+    {
+        TabRow r = new TabRow(this, tabName, rowId);
+        return r.c(colName);
+    }
 
 //----------------------------------------------------------------------------
-    
+
+    /**
+     * Shortcut to return a table-row-column cell content as String
+     * 
+     * @param tabName the name of the table to look-up
+     * @param rowId the ID of the row to look up
+     * @param colName the name of column which contains the value
+     * @return the cell content as Integer
+     */
+    public Integer trcInt(String tabName, int rowId, String colName) throws SQLException
+    {
+        TabRow r = new TabRow(this, tabName, rowId);
+        return r.asInt(colName);
+    }
 
 //----------------------------------------------------------------------------
-    
 
-//----------------------------------------------------------------------------
-    
+    /**
+     * Shortcut to return a table-row-column cell content as Boolean
+     * 
+     * @param tabName the name of the table to look-up
+     * @param rowId the ID of the row to look up
+     * @param colName the name of column which contains the value
+     * @return the cell content as Boolean
+     */
+    public Boolean trcBool(String tabName, int rowId, String colName) throws SQLException
+    {
+        TabRow r = new TabRow(this, tabName, rowId);
+        return r.asBool(colName);
+    }
 
 //----------------------------------------------------------------------------
     
