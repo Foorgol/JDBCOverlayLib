@@ -348,12 +348,39 @@ public class TabRow {
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Get the database object. Avoids passing the db handle around in the application a lot
+     * 
+     * @return the database handle / instance related to this row
+     */
+    public JDBC_GenericDB getDatabaseHandle()
+    {
+        return db;
+    }
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Get the table name related to this table row
+     * 
+     * @return the table name for this table row
+     */
+    public String getTableName()
+    {
+        return tabName;
+    }
 
 //----------------------------------------------------------------------------
 
+    /**
+     * Return the table object for this table row
+     * 
+     * @return the JDBC_Tab related to this table row
+     */
+    public JDBC_Tab getTable()
+    {
+        return db.t(tabName);
+    }
 
 //----------------------------------------------------------------------------
 
