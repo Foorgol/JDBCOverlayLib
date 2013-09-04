@@ -111,6 +111,13 @@ abstract public class JDBC_GenericDB {
         String connStr = "";
         if (t == DB_ENGINE.MYSQL)
         {
+            try {
+                // Load the driver... SHOULDN'T be necessary anymore, but anyway...
+                Class.forName("com.mysql.jdbc.Driver");
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(JDBC_GenericDB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
             connProps.put("user", dbUser);
             connProps.put("password", dbPasswd);
             
@@ -132,7 +139,7 @@ abstract public class JDBC_GenericDB {
         }
         catch (SQLException ex)
         {
-            throw new IllegalArgumentException("Invalid connection parameters for database!");
+            throw new IllegalArgumentException("Invalid connection parameters for database! Details: " + ex.getMessage());
         }
         
         // create tables and views
