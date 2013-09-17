@@ -411,7 +411,6 @@ abstract public class JDBC_GenericDB {
         sql += ", " + helper.commaSepStringFromList(colDefs);
         
         sql += ");";
-        System.err.println(sql);
         execNonQuery(sql);
     }
     
