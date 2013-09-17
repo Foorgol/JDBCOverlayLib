@@ -411,6 +411,7 @@ abstract public class JDBC_GenericDB {
         sql += ", " + helper.commaSepStringFromList(colDefs);
         
         sql += ");";
+        System.err.println(sql);
         execNonQuery(sql);
     }
     
@@ -633,7 +634,7 @@ abstract public class JDBC_GenericDB {
         //sql += referedTable;
         //sql += "(id)";
         //return sql;
-        return keyName + " INTEGER REFERENCES " + referedTable;
+        return keyName + " INTEGER, FOREIGN KEY (" + keyName + ") REFERENCES " + referedTable + "(id)";
     }
 	
 //----------------------------------------------------------------------------
