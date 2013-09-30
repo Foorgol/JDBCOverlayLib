@@ -4,6 +4,7 @@
  */
 package org.nodomain.volkerk.JDBCOverlayLib;
 
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -21,6 +22,8 @@ public class DatabaseTestScenario extends TstBaseClass {
     protected static final String MYSQL_DB = "unittest";
     protected static final String MYSQL_PORT = "3306";
     
+    protected static final String SQLITE_DB = "SqliteTestDB.db";
+    
     
     protected Connection getMysqlConn(boolean openDB) throws SQLException
     {
@@ -29,6 +32,13 @@ public class DatabaseTestScenario extends TstBaseClass {
         if (openDB) connStr += MYSQL_DB;
         
         return DriverManager.getConnection(connStr, DB_USER, DB_PASSWD);
+    }
+    
+    protected Connection getSqliteConn() throws SQLException
+    {
+        String connStr = "jdbc:sqlite://" + Paths.get(outDir(), SQLITE_DB);
+        
+        return DriverManager.getConnection(connStr);
     }
     
     protected void cleanupMysql() throws SQLException

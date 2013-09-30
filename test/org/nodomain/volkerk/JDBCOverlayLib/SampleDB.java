@@ -16,6 +16,11 @@ public class SampleDB extends JDBC_GenericDB {
     {
         super(t, srv, port, name, user, pw);
     }
+    
+    public SampleDB(String sqliteFileName, boolean createNew) throws SQLException {
+        super(sqliteFileName, createNew);
+    }
+    
     @Override
     protected void populateTables() throws SQLException {
         // create a dummy table
