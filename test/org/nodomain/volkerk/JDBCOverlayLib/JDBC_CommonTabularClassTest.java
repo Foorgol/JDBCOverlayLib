@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import static org.nodomain.volkerk.JDBCOverlayLib.JDBC_GenericDB.DB_ENGINE;
+
 /**
  *
  * @author volker
@@ -16,8 +18,13 @@ public class JDBC_CommonTabularClassTest extends DatabaseTestScenario {
     
     @Test
     public void testConstructor() throws SQLException {
+        _testConstructor(DB_ENGINE.MYSQL);
+        _testConstructor(DB_ENGINE.SQLITE);
+    }
+
+    public void _testConstructor(DB_ENGINE engine) throws SQLException {
         
-        SampleDB db = getScenario01();
+        SampleDB db = getScenario01(engine);
         
         // regular constructor call
         JDBC_CommonTabularClass t = new JDBC_CommonTabularClass(db, "t1", false);
@@ -57,7 +64,13 @@ public class JDBC_CommonTabularClassTest extends DatabaseTestScenario {
     @Test
     public void testHasColumn() throws SQLException
     {
-        SampleDB db = getScenario01();
+        _testHasColumn(DB_ENGINE.MYSQL);
+        _testHasColumn(DB_ENGINE.SQLITE);
+    }
+    
+    public void _testHasColumn(DB_ENGINE engine) throws SQLException
+    {
+        SampleDB db = getScenario01(engine);
         JDBC_CommonTabularClass t = new JDBC_CommonTabularClass(db, "t1", false);
         
         assertTrue(t.hasColumn("i"));
@@ -69,7 +82,13 @@ public class JDBC_CommonTabularClassTest extends DatabaseTestScenario {
     @Test
     public void testGetRowMatchesByWhereClause() throws SQLException
     {
-        SampleDB db = getScenario01();
+        _testGetRowMatchesByWhereClause(DB_ENGINE.SQLITE);
+        _testGetRowMatchesByWhereClause(DB_ENGINE.MYSQL);
+    }
+    
+    public void _testGetRowMatchesByWhereClause(DB_ENGINE engine) throws SQLException
+    {
+        SampleDB db = getScenario01(engine);
         JDBC_CommonTabularClass t = new JDBC_CommonTabularClass(db, "t1", false);
 
         int i = t.getRowMatchesByWhereClause("i = ?", 84);
@@ -93,7 +112,13 @@ public class JDBC_CommonTabularClassTest extends DatabaseTestScenario {
     @Test
     public void testGetRowMatchesByColumnValue() throws SQLException
     {
-        SampleDB db = getScenario01();
+        _testGetRowMatchesByColumnValue(DB_ENGINE.SQLITE);
+        _testGetRowMatchesByColumnValue(DB_ENGINE.MYSQL);
+    }
+    
+    public void _testGetRowMatchesByColumnValue(DB_ENGINE engine) throws SQLException
+    {
+        SampleDB db = getScenario01(engine);
         JDBC_CommonTabularClass t = new JDBC_CommonTabularClass(db, "t1", false);
 
         int i = t.getRowMatchesByColumnValue("i", 84);
@@ -115,7 +140,13 @@ public class JDBC_CommonTabularClassTest extends DatabaseTestScenario {
     @Test
     public void testGetRowsByWhereClause() throws SQLException
     {
-        SampleDB db = getScenario01();
+        _testGetRowsByWhereClause(DB_ENGINE.SQLITE);
+        _testGetRowsByWhereClause(DB_ENGINE.MYSQL);
+    }
+    
+    public void _testGetRowsByWhereClause(DB_ENGINE engine) throws SQLException
+    {
+        SampleDB db = getScenario01(engine);
         JDBC_CommonTabularClass t = new JDBC_CommonTabularClass(db, "t1", false);
 
         for (TabRow tr : (TabRowIterator) t.getRowsByWhereClause("i = ?", 42))
@@ -138,7 +169,13 @@ public class JDBC_CommonTabularClassTest extends DatabaseTestScenario {
     @Test
     public void testGetRowsByColumnValue() throws SQLException
     {
-        SampleDB db = getScenario01();
+        _testGetRowsByColumnValue(DB_ENGINE.SQLITE);
+        _testGetRowsByColumnValue(DB_ENGINE.MYSQL);
+    }
+    
+    public void _testGetRowsByColumnValue(DB_ENGINE engine) throws SQLException
+    {
+        SampleDB db = getScenario01(engine);
         JDBC_CommonTabularClass t = new JDBC_CommonTabularClass(db, "t1", false);
 
         for (TabRow tr : (TabRowIterator) t.getRowsByColumnValue("i", 42, "f", 23.23))
@@ -161,7 +198,13 @@ public class JDBC_CommonTabularClassTest extends DatabaseTestScenario {
     @Test
     public void testGetAllRows() throws SQLException
     {
-        SampleDB db = getScenario01();
+        _testGetAllRows(DB_ENGINE.SQLITE);
+        _testGetAllRows(DB_ENGINE.MYSQL);
+    }
+    
+    public void _testGetAllRows(DB_ENGINE engine) throws SQLException
+    {
+        SampleDB db = getScenario01(engine);
         JDBC_CommonTabularClass t = new JDBC_CommonTabularClass(db, "t1", false);
         
         // iterate over a table
@@ -189,7 +232,13 @@ public class JDBC_CommonTabularClassTest extends DatabaseTestScenario {
     @Test
     public void testGetNumRow() throws SQLException
     {
-        SampleDB db = getScenario01();
+        _testGetNumRow(DB_ENGINE.SQLITE);
+        _testGetNumRow(DB_ENGINE.MYSQL);
+    }
+    
+    public void _testGetNumRow(DB_ENGINE engine) throws SQLException
+    {
+        SampleDB db = getScenario01(engine);
         JDBC_CommonTabularClass t = db.t("t1");
         assertTrue(t.getNumRows() == 5);
         

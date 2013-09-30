@@ -5,6 +5,8 @@
 package org.nodomain.volkerk.JDBCOverlayLib;
 
 import com.sun.rowset.CachedRowSetImpl;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -83,15 +85,32 @@ abstract public class JDBC_GenericDB {
      * A counter for executed queries; for debugging purposes only
      */
     protected long queryCounter = 0;
+    
+    protected static final int FAKED_PORT_NUM_FOR_CREATING_NEW_SQLITE_FILE = -100;
+    protected static final int FAKED_PORT_NUM_FOR_OPENING_EXISTING_SQLITE_FILE = -200;
 
+//----------------------------------------------------------------------------
+    
+    /**
+     * Creates a new database instance and connects to the DBMS; specific constructor for SQLite databases
+     * 
+     * @param sqliteFileName path to the SQLite database file
+     * @param createNew if set to true, a new database file will be created if its not already existing
+     */
+    public JDBC_GenericDB(String sqliteFileName, boolean createNew) throws SQLException {
+        this(DB_ENGINE.SQLITE, sqliteFileName,
+                createNew ? FAKED_PORT_NUM_FOR_CREATING_NEW_SQLITE_FILE : FAKED_PORT_NUM_FOR_OPENING_EXISTING_SQLITE_FILE,
+                null, null, null);
+    }
+    
 //----------------------------------------------------------------------------
     
     /**
      * Creates a new database instance and connects to the DBMS
      * 
      * @param t the database engine type
-     * @param srv the name of the database server or null for DBMS-specific default
-     * @param port the port of the database server to connect to or 0 for DBMS-specific default
+     * @param srv the name of the database server or null for DBMS-specific default; for SQLITE, this is the path to the SQLite files
+     * @param port the port of the database server to connect to or 0 for DBMS-specific default; special values for SQLite to indicate creating of a new file vs. opening of an existing
      * @param name the database name to open; the database must exist
      * @param user the user name for the database connection (null if not applicable)
      * @param pw the password for the database connection (null if not applicable)
@@ -129,7 +148,21 @@ abstract public class JDBC_GenericDB {
         }
         else if (t == DB_ENGINE.SQLITE)
         {
-            throw new NotImplementedException();
+            // set unused member variables to invalid values
+            dbName = null;
+            dbUser = null;
+            dbPasswd = null;
+            
+            // check if the database file exists
+            File dbFile = new File(srv);
+            if (!(dbFile.exists()) && (dbPort == FAKED_PORT_NUM_FOR_OPENING_EXISTING_SQLITE_FILE)) {
+                throw new IllegalArgumentException("Database file " + srv + " does not exist and a new file shall not be created");
+            }                
+            
+            // reset the dbPort num
+            dbPort = -1;
+            
+            connStr = "jdbc:sqlite://" + srv;
         }
         
         // get the connection
