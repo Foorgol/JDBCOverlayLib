@@ -10,6 +10,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.nodomain.volkerk.JDBCOverlayLib.JDBC_GenericDB.DB_ENGINE;
+
 /**
  *
  * @author volker
@@ -51,32 +53,49 @@ public class DatabaseTestScenario extends TstBaseClass {
         c.close();
     }
     
-    protected void prepMysqlScenario01() throws SQLException
+    protected void prepScenario01(DB_ENGINE t) throws SQLException
     {
-        cleanupMysql();
-        Connection c = getMysqlConn(true);
+        Connection c;
+        
+        if (t == DB_ENGINE.MYSQL) {
+            cleanupMysql();
+            c = getMysqlConn(true);
+        } else {
+            cleanupOutDir();
+            c = getSqliteConn();
+        }
         Statement s = c.createStatement();
         
-        s.execute("CREATE TABLE IF NOT EXISTS t1 (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+        String aiStr = (t == DB_ENGINE.MYSQL) ? "AUTO_INCREMENT" : "AUTOINCREMENT";
+        String nowStr = (t == DB_ENGINE.MYSQL) ? "NOW()" : "date('now')";
+        String viewStr = (t == DB_ENGINE.MYSQL) ? "CREATE OR REPLACE VIEW" : "CREATE VIEW IF NOT EXISTS";
+
+        
+        s.execute("CREATE TABLE IF NOT EXISTS t1 (id INTEGER NOT NULL PRIMARY KEY " + aiStr + "," +
                 " i INT, f DOUBLE, s VARCHAR(40), d DATETIME)");
         
-        s.execute("CREATE TABLE IF NOT EXISTS t2 (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+        s.execute("CREATE TABLE IF NOT EXISTS t2 (id INTEGER NOT NULL PRIMARY KEY " + aiStr + "," +
                 " i INT, f DOUBLE, s VARCHAR(40), d DATETIME)");
         
-        s.execute("INSERT INTO t1 VALUES (NULL, 42, 23.23, 'Hallo', NOW())");
-        s.execute("INSERT INTO t1 VALUES (NULL, NULL, 666.66, 'Hi', NOW())");
-        s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Ho', NOW())");
-        s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Hoi', NOW())");
-        s.execute("INSERT INTO t1 VALUES (NULL, 84, 42.42, 'Ho', NOW())");
+        s.execute("INSERT INTO t1 VALUES (NULL, 42, 23.23, 'Hallo', " + nowStr + ")");
+        s.execute("INSERT INTO t1 VALUES (NULL, NULL, 666.66, 'Hi', " + nowStr + ")");
+        s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Ho', " + nowStr + ")");
+        s.execute("INSERT INTO t1 VALUES (NULL, 84, NULL, 'Hoi', " + nowStr + ")");
+        s.execute("INSERT INTO t1 VALUES (NULL, 84, 42.42, 'Ho', " + nowStr + ")");
         
-        s.execute("CREATE OR REPLACE VIEW v1 AS SELECT i, f, s FROM t1 WHERE i=84");
+        s.execute(viewStr + " v1 AS SELECT i, f, s FROM t1 WHERE i=84");
+        
+        c.close();
     }
     
-    protected SampleDB getScenario01() throws SQLException
+    protected SampleDB getScenario01(DB_ENGINE t) throws SQLException
     {
-        prepMysqlScenario01();
+        prepScenario01(t);
         
-        return new SampleDB(JDBC_GenericDB.DB_ENGINE.MYSQL, "localhost", 3306, "unittest", "unittest", "unittest");
+        if (t == DB_ENGINE.MYSQL) {
+            return new SampleDB(JDBC_GenericDB.DB_ENGINE.MYSQL, "localhost", 3306, "unittest", "unittest", "unittest");
+        }
+        return new SampleDB(Paths.get(outDir(), SQLITE_DB).toString(), true);
     }
 	
 }

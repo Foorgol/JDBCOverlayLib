@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.nodomain.volkerk.JDBCOverlayLib.DatabaseTestScenario.SQLITE_DB;
+import static org.nodomain.volkerk.JDBCOverlayLib.JDBC_GenericDB.DB_ENGINE;
 
 /**
  *
@@ -26,19 +27,19 @@ public class JDBC_GenericDBTest extends DatabaseTestScenario {
         cleanupMysql();
         
         // open existing database using explicit parameters
-        SampleDB db = new SampleDB(JDBC_GenericDB.DB_ENGINE.MYSQL, "localhost", 3306, "unittest", "unittest", "unittest");
+        SampleDB db = new SampleDB(DB_ENGINE.MYSQL, "localhost", 3306, "unittest", "unittest", "unittest");
         assertNotNull(db);
         db.close();
         
         // open using default parameters
-        db = new SampleDB(JDBC_GenericDB.DB_ENGINE.MYSQL, null, 0, "unittest", "unittest", "unittest");
+        db = new SampleDB(DB_ENGINE.MYSQL, null, 0, "unittest", "unittest", "unittest");
         assertNotNull(db);
         db.close();
         
         // open non-existing db
         try
         {
-            db = new SampleDB(JDBC_GenericDB.DB_ENGINE.MYSQL, "sdfjhsdf", 3306, "unittest", "unittest", "unittest");
+            db = new SampleDB(DB_ENGINE.MYSQL, "sdfjhsdf", 3306, "unittest", "unittest", "unittest");
             fail("Could open non-existing database");
         }
         catch (Exception e) {}
@@ -104,9 +105,14 @@ public class JDBC_GenericDBTest extends DatabaseTestScenario {
 //----------------------------------------------------------------------------
     
     @Test
-    public void testGetTableNames() throws SQLException
+    public void testGetTableNames() throws SQLException {
+        _testGetTableNames(DB_ENGINE.MYSQL);
+        _testGetTableNames(DB_ENGINE.SQLITE);
+    }
+    
+    public void _testGetTableNames(DB_ENGINE t) throws SQLException
     {
-        SampleDB db = getScenario01();
+        SampleDB db = getScenario01(t);
         
         ArrayList<String> tabs = new ArrayList<>();
         tabs.add("t1");
@@ -136,9 +142,14 @@ public class JDBC_GenericDBTest extends DatabaseTestScenario {
 //----------------------------------------------------------------------------
     
     @Test
-    public void testGetViewNames() throws SQLException
+    public void testGetViewNames() throws SQLException {
+        _testGetViewNames(DB_ENGINE.MYSQL);
+        _testGetViewNames(DB_ENGINE.SQLITE);
+    }
+
+    public void _testGetViewNames(DB_ENGINE t) throws SQLException
     {
-        SampleDB db = getScenario01();
+        SampleDB db = getScenario01(t);
         
         ArrayList<String> tabs = new ArrayList<>();
         tabs.add("v1");
@@ -169,7 +180,13 @@ public class JDBC_GenericDBTest extends DatabaseTestScenario {
     @Test
     public void testHasViewOrTable() throws SQLException
     {
-        SampleDB db = getScenario01();
+        _testHasViewOrTable(DB_ENGINE.MYSQL);
+        _testHasViewOrTable(DB_ENGINE.SQLITE);
+    }
+    
+    public void _testHasViewOrTable(DB_ENGINE t) throws SQLException
+    {
+        SampleDB db = getScenario01(t);
         
         assertTrue(db.hasTable("t1"));
         assertTrue(db.hasTable("t2"));

@@ -144,7 +144,7 @@ public class JDBC_TabTest extends DatabaseTestScenario {
         assertTrue(n == 3);
         assertTrue(t.getNumRows() == 2);
         
-        prepMysqlScenario01();
+        prepScenario01();
         assertTrue(t.getNumRows() == 5);
         n = t.deleteRowsByColumnValue("s", "Hoi", "f", null);
         assertTrue(n == 1);
@@ -164,7 +164,7 @@ public class JDBC_TabTest extends DatabaseTestScenario {
         assertTrue(n == 3);
         assertTrue(t.getNumRows() == 2);
         
-        prepMysqlScenario01();
+        prepScenario01();
         assertTrue(t.getNumRows() == 5);
         n = t.deleteRowsByWhereClause("s = ? AND f IS NULL", "Hoi");
         assertTrue(n == 1);
