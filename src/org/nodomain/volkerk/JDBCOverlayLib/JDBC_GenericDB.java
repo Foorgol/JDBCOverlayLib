@@ -6,7 +6,6 @@ package org.nodomain.volkerk.JDBCOverlayLib;
 
 import com.sun.rowset.CachedRowSetImpl;
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -15,13 +14,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.rowset.CachedRowSet;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import org.nodomain.volkerk.JDBCOverlayLib.helper.*;
 
@@ -148,6 +145,13 @@ abstract public class JDBC_GenericDB {
         }
         else if (t == DB_ENGINE.SQLITE)
         {
+            try {
+                // Load the driver... SHOULDN'T be necessary anymore, but anyway...
+                Class.forName("org.sqlite.JDBC");
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(JDBC_GenericDB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
             // set unused member variables to invalid values
             dbName = null;
             dbUser = null;
@@ -162,7 +166,7 @@ abstract public class JDBC_GenericDB {
             // reset the dbPort num
             dbPort = -1;
             
-            connStr = "jdbc:sqlite://" + srv;
+            connStr = "jdbc:sqlite:" + srv;
         }
         
         // get the connection
@@ -330,7 +334,7 @@ abstract public class JDBC_GenericDB {
         {
             rs = conn.createStatement().executeQuery(baseSqlStmt);
             
-            if (!(rs.first()))
+            if (!(rs.next()))
             {
                 log("Scalar query returned no data!");
                 return null;
@@ -344,7 +348,7 @@ abstract public class JDBC_GenericDB {
             rs = st.executeQuery();
             queryCounter++;
             
-            if (!(rs.first()))
+            if (!(rs.next()))
             {
                 log("Scalar query returned no data!");
                 return null;

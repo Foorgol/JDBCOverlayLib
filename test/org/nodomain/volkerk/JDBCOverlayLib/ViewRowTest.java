@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import static org.nodomain.volkerk.JDBCOverlayLib.JDBC_GenericDB.DB_ENGINE;
+
 /**
  *
  * @author volker
@@ -17,7 +19,13 @@ public class ViewRowTest extends DatabaseTestScenario {
     @Test
     public void testColumnAccess() throws SQLException
     {
-        SampleDB db = getScenario01();
+        _testColumnAccess(DB_ENGINE.SQLITE);
+        _testColumnAccess(DB_ENGINE.MYSQL);
+    }
+    
+    public void _testColumnAccess(DB_ENGINE engine) throws SQLException
+    {
+        SampleDB db = getScenario01(engine);
         JDBC_View v = db.v("v1");
         
         ViewRow r2 = null;

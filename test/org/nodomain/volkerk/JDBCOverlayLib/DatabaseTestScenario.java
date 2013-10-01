@@ -4,11 +4,16 @@
  */
 package org.nodomain.volkerk.JDBCOverlayLib;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.*;
 
 import org.nodomain.volkerk.JDBCOverlayLib.JDBC_GenericDB.DB_ENGINE;
 
@@ -38,7 +43,13 @@ public class DatabaseTestScenario extends TstBaseClass {
     
     protected Connection getSqliteConn() throws SQLException
     {
-        String connStr = "jdbc:sqlite://" + Paths.get(outDir(), SQLITE_DB);
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(DatabaseTestScenario.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        String connStr = "jdbc:sqlite:" + getSqliteFileName();
         
         return DriverManager.getConnection(connStr);
     }
@@ -62,7 +73,9 @@ public class DatabaseTestScenario extends TstBaseClass {
             c = getMysqlConn(true);
         } else {
             cleanupOutDir();
+            assertFalse(sqliteFileExists());
             c = getSqliteConn();
+            assertTrue(sqliteFileExists());
         }
         Statement s = c.createStatement();
         
@@ -96,6 +109,15 @@ public class DatabaseTestScenario extends TstBaseClass {
             return new SampleDB(JDBC_GenericDB.DB_ENGINE.MYSQL, "localhost", 3306, "unittest", "unittest", "unittest");
         }
         return new SampleDB(Paths.get(outDir(), SQLITE_DB).toString(), true);
+    }
+    
+    public String getSqliteFileName() {
+        return Paths.get(outDir(), SQLITE_DB).toString();
+    }
+    
+    public boolean sqliteFileExists() {
+        File f = new File(getSqliteFileName());
+        return f.exists();
     }
 	
 }

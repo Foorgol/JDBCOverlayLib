@@ -41,7 +41,7 @@ public class JDBC_Tab extends JDBC_CommonTabularClass {
         ArrayList<String> placeholder = new ArrayList<>();
         ArrayList<String> columns = new ArrayList<>();
         
-        if ((colVal != null) && (colVal.size() != 0))
+        if ((colVal != null) && (!colVal.isEmpty()))
         {
             // manually iterate the hash to assure that columns and values are in sync
             for (String colName : colVal.keySet())
@@ -52,9 +52,16 @@ public class JDBC_Tab extends JDBC_CommonTabularClass {
             }
         }
         
-        // complete the SQL statement and do the insert
+        // complete the SQL statement
         sql += helper.commaSepStringFromList(columns);
         sql += ") VALUES (" + helper.commaSepStringFromList(placeholder) + ");";
+        
+        // special case: inserting an empty row in SQLite
+        if ((colVal != null) && (colVal.isEmpty()) && (db.getEngineType() == JDBC_GenericDB.DB_ENGINE.SQLITE)) {
+            sql = "INSERT INTO " + tabName + " DEFAULT VALUES";
+        }
+        
+        // do the insert
         try
         {
             db.execNonQuery(sql, values.toArray());
