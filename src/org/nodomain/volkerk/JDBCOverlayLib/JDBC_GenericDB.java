@@ -179,6 +179,13 @@ abstract public class JDBC_GenericDB {
             throw new IllegalArgumentException("Invalid connection parameters for database! Details: " + ex.getMessage());
         }
         
+        // in case of SQLite databases, explicitly enable support for foreign keys
+        // and disable synchronous writes for better performance
+        if (t == DB_ENGINE.SQLITE) {
+            execNonQuery("PRAGMA foreign_keys = ON");
+            enforceSynchronousWrites(false);
+        }
+        
         // create tables and views
         populateTables();
         populateViews();
@@ -405,6 +412,34 @@ abstract public class JDBC_GenericDB {
         }
         
         return result;
+    }
+
+//----------------------------------------------------------------------------
+
+    /**
+     * Enables or disables synchronous writes for SQLite databases. Has no effect for other database systems.
+     * 
+     * @param syncOn set to true to enable synchronous writes or to false to disable them
+     */
+    public void enforceSynchronousWrites(boolean syncOn) {
+        // discard this call for non-SQLite databases
+        if (dbType != DB_ENGINE.SQLITE) {
+            return;
+        }
+        
+        // create the SQLite-specific SQL statement for enabling / disabling
+        // synchronous writes
+        String sql = "PRAGMA synchronous = O";
+        if (syncOn) {
+            sql += "N";
+        } else {
+            sql += "FF";
+        }
+        try {
+            execNonQuery(sql);
+        } catch (SQLException ex) {
+            log("EnforceSyncWrites: Exception ignored: ", ex.getMessage());
+        }
     }
 
 //----------------------------------------------------------------------------
